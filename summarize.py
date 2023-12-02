@@ -71,18 +71,21 @@ whisper_path = os.path.join(base_directory, "whisper.cpp/main")
 whisper_model_path = os.path.join(base_directory, "whisper.cpp/models/ggml-large.bin")
 
 # Transcribe audio only if transcript file doesn't exist
-# if having issues with duplicate lines, try https://github.com/ggerganov/whisper.cpp/issues/896#issuecomment-1569586018
+# Reasoning behind params: https://github.com/ggerganov/whisper.cpp/issues/896#issuecomment-1569586018
 if not os.path.exists(transcript_path) or os.path.getsize(transcript_path) == 0:
     print("Transcribing audio...")
     transcription_cmd = [
         whisper_path,
-        "--entropy-thold", "3.0",
-        "-m", whisper_model_path,
-        "-f", audio_path
+        "--entropy-thold", "2.8",
+        "--beam-size", "5",
+        "--max-context", "64",
+        "--model", whisper_model_path,
+        "--file", audio_path
     ]
     with open(transcript_path, "w") as f:
         result = subprocess.run(transcription_cmd, stdout=f, text=True)
         if result.returncode != 0:
+            # whisper.cpp doesn't actually return a nonzero err code on failure, btw
             print(f"Whisper command failed with return code: {result.returncode}")
             sys.exit(1)
 
