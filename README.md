@@ -2,9 +2,7 @@
 
 summarize.py will download a youtube video, transcribe it using [whisper.cpp](https://github.com/ggerganov/whisper.cpp), then summarize it using ChatGPT.
 
-The summary is written to \[your_video_directory\]/summary.txt
-
-This script is idempotent: if the youtube download succeeds, but the transcription fails, the next run will not re-download the youtube video. (However, summary will always be regenerated even if summary.txt already exists)
+The script uses ChatGPT's new 128k context model. This should support up to about 100,000 words, which is maybe 10 hours of discussion. At $0.01/1k tokens, summarizing a transcript costs roughly 10 cents per hour.
 
 ## setup
 
@@ -14,7 +12,7 @@ This script is idempotent: if the youtube download succeeds, but the transcripti
 4. Customize the prompt in `summarize.py`:
 ```python
 prompt = "The following is a raw unlabeled meeting transcript. Create a summary that extracts \
-the points discussed, positions taken by individuals, and main takeaways/actions items.\
+the points discussed, positions taken by individuals, and main takeaways/action items.\
 \nTranscript:"
 ```
 5. Set your openai key: set `export OPENAI_API_KEY=sk-yourkeywhatever` in your shell
@@ -23,6 +21,12 @@ Run it:
 ```bash
 ./summarize.py video_directory youtube_link
 ```
+
+### notes
+
+The transcript is saved to `[your_video_directory]/transcript.txt`, and the summary to `[your_video_directory]/summary.txt`.
+
+This script is idempotent: if the youtube download succeeds, but the transcription fails, the next run will not re-download the youtube video. (However, summary will always be regenerated even if summary.txt already exists)
 
 ## example
 

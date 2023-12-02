@@ -7,7 +7,7 @@ import shutil
 import sys
 
 prompt = "The following is a raw unlabeled meeting transcript. Create a summary that extracts \
-the points discussed, positions taken by individuals, and main takeaways/actions items.\
+the points discussed, positions taken by individuals, and main takeaways/action items.\
 \nTranscript:"
 
 def summarize_text(text, client):
@@ -15,12 +15,12 @@ def summarize_text(text, client):
         response = client.chat.completions.create(
             model="gpt-4-1106-preview",
             max_tokens=4096,
-            temperature=0.2,
+            temperature=1.0,
             top_p=0.5,
             messages=[
                 {
                     "role": "user",
-                    "content": prompt + f"\n\n{text}"
+                    "content": prompt + f"\n\n{text}\n\nComprehensive summary:"
                 }
             ]
         )
@@ -71,10 +71,12 @@ whisper_path = os.path.join(base_directory, "whisper.cpp/main")
 whisper_model_path = os.path.join(base_directory, "whisper.cpp/models/ggml-large.bin")
 
 # Transcribe audio only if transcript file doesn't exist
+# if having issues with duplicate lines, try https://github.com/ggerganov/whisper.cpp/issues/896#issuecomment-1569586018
 if not os.path.exists(transcript_path) or os.path.getsize(transcript_path) == 0:
     print("Transcribing audio...")
     transcription_cmd = [
         whisper_path,
+        "--entropy-thold", "3.0",
         "-m", whisper_model_path,
         "-f", audio_path
     ]
