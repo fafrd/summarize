@@ -1,13 +1,38 @@
 #!python
 
+import openai
 import os
 import subprocess
 import shutil
 import sys
 
-llm_prompt = """
-You help read a raw unlabeled transcript that is a conversation between multiple people working together and create a coherent, concise, and easy to understand summary that extracts the main takeaways of the conversation.
-"""
+prompt = "The following is a raw unlabeled meeting transcript. Create a summary that extracts \
+the points discussed, positions taken by individuals, and main takeaways/actions items.\
+\nTranscript:"
+
+def summarize_text(text, client):
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4-1106-preview",
+            max_tokens=4096,
+            temperature=0.2,
+            top_p=0.5,
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt + f"\n\n{text}"
+                }
+            ]
+        )
+        return response
+    except Exception as e:
+        print(f"Error during summarization: {e}")
+        return None
+
+# Initialize OpenAI client
+client = openai.OpenAI(
+    api_key=os.environ.get("OPENAI_API_KEY")
+)
 
 # Check number of arguments
 if len(sys.argv) != 3:
@@ -41,7 +66,7 @@ if "audio.wav" not in os.listdir():
 
 audio_path = os.path.join(video_directory, "audio.wav")
 transcript_path = os.path.join(base_directory, sys.argv[1], "transcript.txt")
-summarized_path = os.path.join(video_directory, "summaries.txt")
+summarized_path = os.path.join(video_directory, "summary.txt")
 whisper_path = os.path.join(base_directory, "whisper.cpp/main")
 whisper_model_path = os.path.join(base_directory, "whisper.cpp/models/ggml-large.bin")
 
@@ -74,7 +99,16 @@ else:
     os.remove(temp_path)
 
 print("Summarizing transcript...")
-with open(summarized_path, "w") as f:
-    subprocess.run([gpt_summarize_path, "--llm-prompt", llm_prompt, transcript_path], stdout=f, text=True)
+with open(transcript_path, "r") as transcript_file:
+    transcript = transcript_file.read()
 
-print(f"Summarized to {summarized_path}")
+response = summarize_text(transcript, client)
+summarized_text = response.choices[0].message.content
+print(f"Prompt tokens used: {response.usage.prompt_tokens}. Completion tokens used: {response.usage.completion_tokens}")
+
+if summarized_text:
+    with open(summarized_path, "w") as f:
+        f.write(summarized_text)
+    print(f"Summarized to {summarized_path}")
+else:
+    print("Failed to summarize the transcript.")
