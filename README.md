@@ -4,31 +4,7 @@ summarize.py will download a youtube video, transcribe it using [whisper.cpp](ht
 
 The script uses ChatGPT's new 128k context model. This should support up to about 100,000 words, which is maybe 10 hours of discussion. At $0.01/1k tokens, summarizing a transcript costs roughly 10 cents per hour.
 
-## setup
-
-1. clone this repo. cd into it
-2. git clone https://github.com/ggerganov/whisper.cpp.git
-3. cd whisper.cpp, `bash ./models/download-ggml-model.sh large` then `make`
-4. Customize the prompt in `summarize.py`:
-```python
-prompt = "The following is a raw unlabeled meeting transcript. Create a summary that extracts \
-the points discussed, positions taken by individuals, and main takeaways/action items.\
-\nTranscript:"
-```
-5. Set your openai key: set `export OPENAI_API_KEY=sk-yourkeywhatever` in your shell
-
-Run it: 
-```bash
-./summarize.py video_directory youtube_link
-```
-
-### notes
-
-The transcript is saved to `[your_video_directory]/transcript.txt`, and the summary to `[your_video_directory]/summary.txt`.
-
-This script is idempotent: if the youtube download succeeds, but the transcription fails, the next run will not re-download the youtube video. (However, summary will always be regenerated even if summary.txt already exists)
-
-## example
+### example
 
 I've been using this to summarize my local city council meetings. For example, given this [70-minute council meeting](https://www.youtube.com/watch?v=rivy4Afgeyk), the following summary is produced:
 
@@ -53,3 +29,28 @@ I've been using this to summarize my local city council meetings. For example, g
 > 8. Council Reports: Councilmembers shared updates and expressed pride in the Mercer Island High School band's participation in the Macy's Thanksgiving Day Parade.
 > 
 > The meeting concluded with an executive session to discuss pending or potential litigation and real estate matters. No action was taken following the executive session. The next hybrid meeting is scheduled for December 5, 2023.
+
+## setup
+
+1. clone this repo. cd into it
+2. git clone https://github.com/ggerganov/whisper.cpp.git
+3. cd whisper.cpp, `bash ./models/download-ggml-model.sh large` then `make`
+4. Customize the prompt in `summarize.py`:
+```python
+prompt = "The following is a raw unlabeled meeting transcript. Create a summary that extracts \
+the points discussed, positions taken by individuals, and main takeaways/action items.\
+\nTranscript:"
+```
+5. Set your openai key: set `export OPENAI_API_KEY=sk-yourkeywhatever` in your shell
+
+Run it: 
+```bash
+./summarize.py video_directory youtube_link
+```
+
+## notes
+
+- The transcript is saved to `[your_video_directory]/transcript.txt`
+- The summary is saved to `[your_video_directory]/summary.txt`
+
+This script is idempotent: if the youtube download succeeds, but the transcription fails, the next run will not re-download the youtube video. (However, summary will always be regenerated even if summary.txt already exists)
