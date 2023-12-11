@@ -1,6 +1,6 @@
 # summarize
 
-summarize.py will download a youtube video, transcribe it using [whisper.cpp](https://github.com/ggerganov/whisper.cpp), then summarize it using ChatGPT.
+summarize.py will download the auto-generated subtitles for a youtube video and summarize them using ChatGPT.
 
 The script uses ChatGPT's new 128k context model. This should support up to about 100,000 words, which is maybe 10 hours of discussion. At $0.01/1k tokens, summarizing a transcript costs roughly 10 cents per hour.
 
@@ -32,16 +32,15 @@ I've been using this to summarize my local city council meetings. For example, g
 
 ## setup
 
-1. clone this repo. cd into it
-2. git clone https://github.com/ggerganov/whisper.cpp.git
-3. cd whisper.cpp, `bash ./models/download-ggml-model.sh large` then `make`
-4. Customize the prompt in `summarize.py`:
+1. Install youtube-dl from [their github](https://github.com/ytdl-org/youtube-dl), or with `brew install youtube-dl`
+2. clone this repo. cd into it
+3. Customize the prompt in `summarize.py`:
 ```python
 prompt = "The following is a raw unlabeled meeting transcript. Create a summary that extracts \
 the points discussed, positions taken by individuals, and main takeaways/action items.\
 \nTranscript:"
 ```
-5. Set your openai key: set `export OPENAI_API_KEY=sk-yourkeywhatever` in your shell
+4. Set your openai key: set `export OPENAI_API_KEY=sk-yourkeywhatever` in your shell
 
 Run it: 
 ```bash

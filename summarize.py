@@ -4,6 +4,7 @@ import openai
 import os
 import subprocess
 import shutil
+import argparse
 import sys
 
 prompt = "The following is a raw unlabeled meeting transcript. Create a summary that extracts \
@@ -34,81 +35,48 @@ client = openai.OpenAI(
     api_key=os.environ.get("OPENAI_API_KEY")
 )
 
-# Check number of arguments
-if len(sys.argv) != 3:
-    print("Usage: script_name.py [video_directory] [youtube_link]")
-    sys.exit(1)
+# Create argument parser
+parser = argparse.ArgumentParser(description='Process YouTube video for transcript summarization.')
+parser.add_argument('video_directory', help='Directory to store video and audio files')
+parser.add_argument('youtube_link', help='YouTube link to download audio from')
+
+# Parse arguments
+args = parser.parse_args()
 
 base_directory = os.getcwd()
-if not os.path.exists(base_directory):
-    print("Base directory doesn't exist")
-    sys.exit(1)
+video_directory = os.path.join(base_directory, args.video_directory)
+youtube_link = args.youtube_link
 
-video_directory = os.path.join(base_directory, sys.argv[1])
-youtube_link = sys.argv[2]
-
-# Navigate to the council directory
+# Navigate to the directory
 os.makedirs(video_directory, exist_ok=True)
 os.chdir(video_directory)
 
-# Check if there is any .m4a file before downloading with youtube-dl
-m4a_files = [f for f in os.listdir() if f.endswith(".m4a")]
-if not m4a_files:
-    print("Downloading audio from YouTube...")
-    subprocess.run(["youtube-dl", "-x", youtube_link])
-    m4a_files = [f for f in os.listdir() if f.endswith(".m4a")]
+# Check if there is any .vtt file before downloading with youtube-dl
+vtt_files = [f for f in os.listdir() if f.endswith(".vtt")]
+if not vtt_files:
+    print("Downloading subtitles from YouTube...")
+    subprocess.run(["youtube-dl", "--skip-download", "--write-auto-sub", youtube_link])
+    vtt_files = [f for f in os.listdir() if f.endswith(".vtt")]
 
-# Convert audio using ffmpeg if audio.wav doesn't exist
-if "audio.wav" not in os.listdir():
-    print("Converting audio to 16kHz...")
-    input_audio = m4a_files[0]
-    subprocess.run(["ffmpeg", "-i", input_audio, "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le", "audio.wav"])
+if not vtt_files:
+    print("No subtitles found. Exiting...")
+    sys.exit(1)
 
-audio_path = os.path.join(video_directory, "audio.wav")
+with open(vtt_files[0], 'r') as file:
+    for i in range(7):
+        line = file.readline()
 transcript_path = os.path.join(base_directory, sys.argv[1], "transcript.txt")
-summarized_path = os.path.join(video_directory, "summary.txt")
-whisper_path = os.path.join(base_directory, "whisper.cpp/main")
-whisper_model_path = os.path.join(base_directory, "whisper.cpp/models/ggml-large.bin")
-
-# Transcribe audio only if transcript file doesn't exist
-# Reasoning behind params: https://github.com/ggerganov/whisper.cpp/issues/896#issuecomment-1569586018
-if not os.path.exists(transcript_path) or os.path.getsize(transcript_path) == 0:
-    print("Transcribing audio...")
-    transcription_cmd = [
-        whisper_path,
-        "--entropy-thold", "2.8",
-        "--beam-size", "5",
-        "--max-context", "64",
-        "--model", whisper_model_path,
-        "--file", audio_path
-    ]
-    with open(transcript_path, "w") as f:
-        result = subprocess.run(transcription_cmd, stdout=f, text=True)
-        if result.returncode != 0:
-            # whisper.cpp doesn't actually return a nonzero err code on failure, btw
-            print(f"Whisper command failed with return code: {result.returncode}")
-            sys.exit(1)
-
-cleanup_script_path = os.path.join(base_directory, "cleanup.sh")
-gpt_summarize_path = os.path.join(base_directory, "gpt-summarize/gpt-summarize")
-
-print("Cleaning up transcript...")
-temp_path = transcript_path + ".tmp"
-with open(temp_path, 'w') as f:
-    result = subprocess.run([cleanup_script_path, transcript_path], stdout=f)
-# If command was successful, replace the original with the cleaned file
-if result.returncode == 0:
-    shutil.move(temp_path, transcript_path)
-else:
-    # Optional: remove temporary file if command failed
-    os.remove(temp_path)
+with open(transcript_path, 'w') as output_file:
+    output_file.write(line.strip())
 
 print("Summarizing transcript...")
+gpt_summarize_path = os.path.join(base_directory, "gpt-summarize/gpt-summarize")
 with open(transcript_path, "r") as transcript_file:
     transcript = transcript_file.read()
 
 response = summarize_text(transcript, client)
 summarized_text = response.choices[0].message.content
+summarized_path = os.path.join(video_directory, "summary.txt")
 print(f"Prompt tokens used: {response.usage.prompt_tokens}. Completion tokens used: {response.usage.completion_tokens}")
 
 if summarized_text:
