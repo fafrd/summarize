@@ -2,33 +2,35 @@
 
 summarize.py will download the auto-generated subtitles for a youtube video and summarize them using ChatGPT.
 
-The script uses ChatGPT's new 128k context model. This should support up to about 100,000 words, which is maybe 10 hours of discussion. At $0.01/1k tokens, summarizing a transcript costs roughly 10 cents per hour.
+This script takes on a summary-of-summaries method, which I find works well. It will ask the AI to make 3 different summaries from slightly different prompts, then re-prompt the AI to create a final summary from the intermediate ones.
+
+The script uses ChatGPT's new 128k context model. This should support up to about 100,000 words, which is maybe 10 hours of discussion. At $0.01 per 1k tokens times 4 summarizations, summarizing a transcript costs roughly 40 cents per hour.
 
 ### example
 
-I've been using this to summarize my local city council meetings. For example, given this [70-minute council meeting](https://www.youtube.com/watch?v=rivy4Afgeyk), the following summary is produced:
+I've been using this to summarize my local city council meetings. For example, given this [2 hour 45 minute council meeting](https://www.youtube.com/watch?v=a8uXZQ8XDrY), the following summary is produced:
 
-> The Mercer Island City Council held a regular hybrid meeting on November 21, 2023. Mayor Salim Nice presided over the meeting, which included roll call, Pledge of Allegiance, and approval of the agenda. City Manager Jesse Bond provided a report covering various topics, including the permanent closure of City Hall, upcoming meetings, capital projects, and community events.
-> 
-> Key points discussed and actions taken during the meeting included:
-> 
-> 1. Public Comment: Two individuals signed up to speak, but only one, Will Orendorff, appeared to advocate for the Mercer Island Country Club's efforts to bring back the tennis bubble.
-> 
-> 2. Consent Agenda: The consent agenda was approved with one item, AB 6369 (Town Center Parking Plan Adoption), pulled for separate discussion and later approved.
-> 
-> 3. Sound Cities Association Voting Delegates: Councilmember Weinberg was appointed as the voting delegate for the annual meeting on December 6, and Councilmember Jacobson for the caucus meeting on December 13.
-> 
-> 4. Mid-Biennial Budget Public Hearing: The public hearing was opened and closed with no public testimony. Finance Director Matt Mornick presented a financial status update and proposed mid-biennial budget adjustments. The council discussed and approved forwarding proposed budget adjustments for final consideration on December 5.
-> 
-> 5. Utility Rates for 2024: The council reviewed proposed rate increases for water, sewer, stormwater, and emergency medical service utilities. Utility Board Chair Tim O'Connell provided insights on the rate adjustments.
-> 
-> 6. Property Tax Levies and Other Resolutions: The council adopted ordinances and resolutions related to property tax levies, a declaration of intent for water bond issuance, and NORCOM's 2024 budget allocation.
-> 
-> 7. Other Business and Planning Schedule: City Manager Bond updated the council on the status of the Slater room for future meetings and the mayoral and deputy mayoral appointments scheduled for January 2.
-> 
-> 8. Council Reports: Councilmembers shared updates and expressed pride in the Mercer Island High School band's participation in the Macy's Thanksgiving Day Parade.
-> 
-> The meeting concluded with an executive session to discuss pending or potential litigation and real estate matters. No action was taken following the executive session. The next hybrid meeting is scheduled for December 5, 2023.
+> <ul><li>The Mercer Island City Council is actively working on updating the comprehensive plan to comply with House Bill 1220, focusing on housing needs across different income levels and addressing potential racially disparate impacts.
+> </li><li>The council administered Oaths of Office to newly elected members Dave Rosenbom, Wendy Wer, Craig Reynolds, and Jake Jacobson, followed by the election of council member Nce as mayor and Dave Rosenbom as Deputy Mayor.
+> </li><li>A brief recess was taken for pictures and seating arrangements after the elections.
+> </li><li>City manager Jesse Bond updated on various city projects, including City Hall transitions, community center maintenance, and the Island Crestway project, and celebrated the success of the Illuminate MI event.
+> </li><li>The Racially Disparate Impacts (RDI) evaluation and Land Capacity Analysis (LCA) supplement were presented, revealing a shortfall of 143 units for housing below 120% AMI and suggesting policy amendments to mitigate racially disparate impacts and displacement risks.
+> </li><li>Three options to address the housing capacity shortfall were proposed:
+> <ol>
+>   <li>Increasing height in the town center by one story.</li>
+>   <li>Allowing multifamily residential uses in the commercial office (CO) zone.</li>
+>   <li>Increasing maximum density in the MF3 zone.</li>
+> </ol>
+> </li><li>The council members shared individual reports, expressing the need for further information and discussion on the proposed options, particularly focusing on infrastructure and displacement concerns in areas like Shorewood.
+> </li><li>Councilmember Reynolds highlighted the potential of ADUs in single-family zones, while Councilmember Andall called for additional analysis on the Planned Business Zone (PBZ) as a possible solution.
+> </li><li>Councilmember Jacobson showed hesitance towards rezoning in the Shorewood area, whereas Councilmember Wer favored Option B and the inclusion of PBZ in the analysis.
+> </li><li>Deputy Mayor Rosenbom emphasized the significance of transit access in affordable housing planning, and Mayor Nce proposed a limited incremental scaling approach in the CO zone to maintain flexibility and minimize displacement.
+> </li><li>The council agreed to further discuss the options at the next meeting on January 16, 2023, with staff working to provide more insights on the PBZ.
+> </li><li>The Housing Work Group will reconvene to draft the housing element of the comprehensive plan, with public outreach, surveys, and an open house planned to gather community input before the Planning Commission's public hearing.
+> </li><li>The council will enter an executive session to discuss pending or potential litigation, with no action expected to follow.
+> </li><li>Overall, the council recognized the complexity of planning for affordable housing and the necessity for ongoing advocacy and collaboration with state and county entities.</li></ul>
+
+(Note the misspelled names- this is due to automatic transcription)
 
 ## setup
 
@@ -49,7 +51,5 @@ Run it:
 
 ## notes
 
-- The transcript is saved to `[your_video_directory]/transcript.txt`
-- The summary is saved to `[your_video_directory]/summary.txt`
-
-This script is idempotent: if the youtube download succeeds, but the transcription fails, the next run will not re-download the youtube video. (However, summary will always be regenerated even if summary.txt already exists)
+- The raw transcript is saved to `[your_video_directory]/transcript.txt`
+- The summaries are saved to `[your_video_directory]/summaries.html`
