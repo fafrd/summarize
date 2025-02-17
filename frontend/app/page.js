@@ -1,34 +1,51 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Home() {
   const [url, setUrl] = useState("");
   const [message, setMessage] = useState("");
+  const [entries, setEntries] = useState([]);
+
+  useEffect(() => {
+    fetchEntries();
+    const interval = setInterval(fetchEntries, 10_000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchEntries = async () => {
+    const response = await fetch("http://127.0.0.1:5000/entries");
+    if (response.ok) {
+      const data = await response.json();
+      setEntries(data);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
 
-    const response = await fetch("/api/add-video", {
+    const response = await fetch("http://127.0.0.1:5000/entries", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url }),
+      body: JSON.stringify({
+        name: "New Entry",
+        status: "not_started",
+        url: url,
+        transcription: "",
+      }),
     });
+
+    const data = await response.json();
 
     if (response.ok) {
       setMessage("Video added successfully.");
       setUrl("");
+      fetchEntries(); // Refresh the list after adding
     } else {
-      setMessage("Failed to add video.");
+      setMessage(data.error || "Failed to add video.");
     }
   };
-
-  const dummyData = [
-    { name: "City Council Meeting 1", status: "done" },
-    { name: "City Council Meeting 2", status: "transcribing" },
-    { name: "City Council Meeting 3", status: "downloading" },
-  ];
 
   return (
     <div id="container">
@@ -44,14 +61,14 @@ export default function Home() {
           />
           <button type="submit">Go</button>
         </form>
-        {message && <p>{message}</p>}
+        {message && <p id="message">{message}</p>}
 
         <div className="video-list">
           <div className="video-header">
             <span>Name</span>
             <span>Status</span>
           </div>
-          {dummyData.map((video, index) => (
+          {entries.map((video, index) => (
             <div className="video-row" key={index}>
               <span>{video.name}</span>
               <span>{video.status}</span>

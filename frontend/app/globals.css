@@ -88,3 +88,8 @@ form button {
   padding: 5px 0;
   border-bottom: 1px solid #ccc;
 }
+
+#message {
+  margin-bottom: 40px;
+  font-style: italic;
+}
