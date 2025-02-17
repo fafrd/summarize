@@ -7,6 +7,8 @@ export default function Home() {
   const [message, setMessage] = useState("");
   const [entries, setEntries] = useState([]);
 
+  const SERVER = "http://127.0.0.1:3669";
+
   useEffect(() => {
     fetchEntries();
     const interval = setInterval(fetchEntries, 10_000);
@@ -14,7 +16,7 @@ export default function Home() {
   }, []);
 
   const fetchEntries = async () => {
-    const response = await fetch("http://127.0.0.1:5000/entries");
+    const response = await fetch(SERVER + "/entries");
     if (response.ok) {
       const data = await response.json();
       setEntries(data);
@@ -25,7 +27,7 @@ export default function Home() {
     e.preventDefault();
     setMessage("");
 
-    const response = await fetch("http://127.0.0.1:5000/entries", {
+    const response = await fetch(SERVER + "/entries", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

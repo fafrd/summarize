@@ -62,4 +62,4 @@ def add_entry():
         return jsonify({"error": "A video with this URL already exists."}), 409  # HTTP 409 Conflict
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(port=3669, debug=True)
