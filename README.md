@@ -4,11 +4,19 @@ summarize.py will download a youtube video, transcribe it using whisper.cpp, the
 
 ## Developing
 
-cd into api
+First set up the backend:
 
+    cd api
     poetry install
     poetry run python app.py
 
-cd into frontend
+    git clone https://github.com/ggerganov/whisper.cpp.git
+    cd whisper.cpp
+    bash ./models/download-ggml-model.sh large-v3-turbo
+    cmake -B build
+    cmake --build build --config Release
 
+Then set up the frontend:
+
+    cd ../../frontend
     npm run dev

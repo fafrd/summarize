@@ -1,7 +1,7 @@
 import time
 from model import Entry
-from downloader import download_audio, fetch_video_title
-#from transcriber import transcribe_audio
+from downloader import download_audio, fetch_video_title, convert_to_wav
+from transcriber import transcribe_audio
 from logger import log
 
 def process_entries():
@@ -22,24 +22,33 @@ def process_entries():
             entry.status = "downloading"
             entry.save()
 
+            log(f"Downloading audio for: {entry.url}")
             audio_path = download_audio(entry)
             if not audio_path:
                 log(f"Download failed for {entry.url}")
                 entry.status = "not_started"
                 entry.save()
-                continue  
+                continue
+            log(f"Download complete: {audio_path}")
 
-            #entry.status = "transcribing"
-            #entry.save()
+            entry.status = "converting"
+            entry.save()
 
-            #transcription = transcribe_audio(audio_path)
-            #if not transcription:
-            #    log(f"Transcription failed for {audio_path}")
-            #    entry.status = "not_started"
-            #    entry.save()
-            #    continue
+            log(f"Converting to WAV: {audio_path}")
+            audio_path = convert_to_wav(entry)
+            log(f"Conversion complete: {audio_path}")
 
-            #entry.transcription = transcription
+            entry.status = "transcribing"
+            entry.save()
+
+            transcription = transcribe_audio(audio_path)
+            if not transcription:
+                log(f"Transcription failed for {audio_path}")
+                entry.status = "not_started"
+                entry.save()
+                continue
+
+            entry.transcription = transcription
             entry.status = "done"
             entry.save()
 
