@@ -1,65 +1,29 @@
-from flask import Flask, jsonify, request
-from flask_cors import CORS
-from peewee import SqliteDatabase, Model, CharField, TextField, DateTimeField, IntegrityError
-import os
-from datetime import datetime
+import threading
+import time
+import sys
+from logger import log
+from server import app  # Import Flask app from server.py
+from daemon import process_entries  # Import daemon function
 
-# Database setup
-DB_PATH = "summarize.db"
-db = SqliteDatabase(DB_PATH)
+def run_api():
+    """Runs the Flask API."""
+    app.run(port=3669, debug=True, use_reloader=False)
 
-class BaseModel(Model):
-    class Meta:
-        database = db
-
-class Entry(BaseModel):
-    name = CharField()
-    status = CharField()
-    url = CharField(unique=True)
-    transcription = TextField(null=True)
-    insertion_date = DateTimeField(default=datetime.utcnow)
-
-# Ensure database exists
-if not os.path.exists(DB_PATH):
-    db.connect()
-    db.create_tables([Entry])
-    # Adding a sample row
-    Entry.create(
-        name="Sample Meeting",
-        status="done",
-        url="https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        transcription="Example transcription text...",
-    )
-    db.close()
-
-# Flask app setup
-app = Flask(__name__)
-CORS(app)
-
-@app.route("/entries", methods=["GET"])
-def get_entries():
-    """Returns all database entries as JSON."""
-    entries = Entry.select().order_by(Entry.insertion_date.desc()).dicts()
-    return jsonify(list(entries))
-
-@app.route("/entries", methods=["POST"])
-def add_entry():
-    """Inserts a new entry into the database."""
-    data = request.json
-    if data is None or not all(k in data for k in ("name", "status", "url", "transcription")):
-        return jsonify({"error": "Missing required fields"}), 400
-    
-    try:
-        entry = Entry.create(
-            name=data["name"],
-            status=data["status"],
-            url=data["url"],
-            transcription=data["transcription"],
-        )
-        return jsonify({"id": entry.id, "message": "Entry added successfully."}), 201
-
-    except IntegrityError:
-        return jsonify({"error": "A video with this URL already exists."}), 409  # HTTP 409 Conflict
+def run_daemon():
+    """Runs the processing daemon."""
+    log("Daemon started, watching for new videos...")
+    process_entries()
 
 if __name__ == "__main__":
-    app.run(port=3669, debug=True)
+    api_thread = threading.Thread(target=run_api, daemon=True)
+    daemon_thread = threading.Thread(target=run_daemon, daemon=True)
+
+    api_thread.start()
+    daemon_thread.start()
+
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        log("Shutting down...")
+        sys.exit(0)
