@@ -76,15 +76,15 @@ form button {
 
 .video-header {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 3fr 1fr;
   font-weight: bold;
-  border-bottom: 2px solid #000;
+  border-bottom: 0px solid #ccc;
   padding-bottom: 5px;
 }
 
 .video-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 3fr 1fr;
   padding: 5px 0;
   border-bottom: 1px solid #ccc;
 }

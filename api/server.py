@@ -16,15 +16,15 @@ def get_entries():
 def add_entry():
     """Inserts a new entry into the database."""
     data = request.json
-    if data is None or not all(k in data for k in ("name", "status", "url", "transcription")):
-        return jsonify({"error": "Missing required fields"}), 400
+    if data is None or not "url" in data:
+        return jsonify({"error": "Missing field 'url'"}), 400
     
     try:
         entry = Entry.create(
-            name=data["name"],
-            status=data["status"],
+            name=data["url"],
+            status="not_started",
             url=data["url"],
-            transcription=data["transcription"],
+            transcription=None,
         )
         return jsonify({"id": entry.id, "message": "Entry added successfully."}), 201
     except IntegrityError:

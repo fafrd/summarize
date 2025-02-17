@@ -11,7 +11,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchEntries();
-    const interval = setInterval(fetchEntries, 5_000);
+    const interval = setInterval(fetchEntries, 1_000);
     return () => clearInterval(interval);
   }, []);
 
@@ -31,10 +31,7 @@ export default function Home() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name: url,
-        status: "not_started",
         url: url,
-        transcription: "",
       }),
     });
 
