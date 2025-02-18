@@ -1,6 +1,5 @@
 from peewee import SqliteDatabase, Model, CharField, TextField, DateTimeField, IntegrityError
 import os
-from datetime import datetime, timezone
 from logger import log
 
 # Database setup
@@ -16,7 +15,7 @@ class Entry(BaseModel):
     status = CharField()
     url = CharField(unique=True)
     transcription = TextField(null=True)
-    insertion_date = DateTimeField(default=datetime.now(timezone.utc))
+    insertion_date = DateTimeField(null=False)
 
 # Ensure database exists
 def initialize_db():

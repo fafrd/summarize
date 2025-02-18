@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from peewee import IntegrityError
@@ -25,6 +26,7 @@ def add_entry():
             status="not_started",
             url=data["url"],
             transcription=None,
+            insertion_date=datetime.now(timezone.utc)
         )
         return jsonify({"id": entry.id, "message": "Entry added successfully."}), 201
     except IntegrityError:
