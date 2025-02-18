@@ -48,7 +48,13 @@ a {
 }
 
 main {
-  padding: 80px 120px;
+  padding: 40px 20px;
+}
+
+@media (min-width: 768px) {
+  main {
+    padding: 80px 120px;
+  }
 }
 
 form {
@@ -70,7 +76,6 @@ form button {
 
 .video-list {
   display: grid;
-  gap: 10px;
   width: 100%;
 }
 
@@ -89,6 +94,7 @@ form button {
   padding: 5px 0;
   border-bottom: 1px solid #ccc;
   gap: 10px;
+  padding: 10px 0;
 }
 
 #message {
@@ -98,6 +104,7 @@ form button {
 
 .copy-button {
   padding: 5px 10px;
+  max-height: 60px;
   background-color: #333;
   color: white;
   border: none;
