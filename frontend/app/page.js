@@ -11,7 +11,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchEntries();
-    const interval = setInterval(fetchEntries, 1_000);
+    const interval = setInterval(fetchEntries, 10_000);
     return () => clearInterval(interval);
   }, []);
 
@@ -49,7 +49,7 @@ export default function Home() {
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text).then(() => {
       setMessage("Transcript copied to clipboard.");
-      setTimeout(() => setMessage(""), 2000);
+      setTimeout(() => setMessage(""), 2500);
     });
   };
 
@@ -73,7 +73,7 @@ export default function Home() {
           <div className="video-header">
             <span>Name</span>
             <span>Status</span>
-            <span>Actions</span>
+            <span></span>
           </div>
           {entries.map((video, index) => (
             <div className="video-row" key={index}>

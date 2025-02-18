@@ -80,6 +80,7 @@ form button {
   font-weight: bold;
   border-bottom: 0px solid #ccc;
   padding-bottom: 5px;
+  gap: 10px;
 }
 
 .video-row {
@@ -87,6 +88,7 @@ form button {
   grid-template-columns: 3fr 1fr 1fr;
   padding: 5px 0;
   border-bottom: 1px solid #ccc;
+  gap: 10px;
 }
 
 #message {
@@ -96,7 +98,7 @@ form button {
 
 .copy-button {
   padding: 5px 10px;
-  background-color: #007bff;
+  background-color: #333;
   color: white;
   border: none;
   cursor: pointer;
@@ -105,5 +107,5 @@ form button {
 }
 
 .copy-button:hover {
-  background-color: #0056b3;
+  background-color: #222;
 }

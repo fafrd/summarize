@@ -13,9 +13,13 @@ def fetch_video_title(url):
         ydl_opts = {'quiet': True, 'noprogress': True, 'extract_flat': True}
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
-            if not info or "title" not in info:
+            if not info:
                 raise Exception("failed to extract")
-            return info.get("title")
+            title = info.get("title", "")
+
+            # Sanitize
+            title = title.replace("/", "_")
+            return title
     except Exception as e:
         log(f"Error fetching title for {url}: {e}")
         return None
