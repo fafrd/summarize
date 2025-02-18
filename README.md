@@ -8,7 +8,6 @@ First set up the backend:
 
     cd api
     poetry install
-    poetry run python app.py
 
     git clone https://github.com/ggerganov/whisper.cpp.git
     cd whisper.cpp
@@ -16,7 +15,13 @@ First set up the backend:
     cmake -B build
     cmake --build build --config Release
 
+    cd ..
+    poetry run python app.py
+
 Then set up the frontend:
 
     cd ../../frontend
+    npm i
     npm run dev
+    # or
+    npm run build && npm run start
