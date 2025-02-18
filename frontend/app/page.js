@@ -76,7 +76,11 @@ export default function Home() {
           </div>
           {entries.map((video, index) => (
             <div className="video-row" key={index}>
-              <span>{video.name}</span>
+              <span>
+                <a href={video.url} target="_blank">
+                  {video.name}
+                </a>
+              </span>
               <span>{video.status}</span>
               {video.transcription && (
                 <button
