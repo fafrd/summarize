@@ -83,7 +83,7 @@ form button {
   display: grid;
   grid-template-columns: 3fr 1fr 1fr;
   font-weight: bold;
-  border-bottom: 0px solid #ccc;
+  border-bottom: 1px solid #ccc;
   padding-bottom: 5px;
   gap: 10px;
 }
