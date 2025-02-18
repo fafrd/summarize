@@ -46,6 +46,13 @@ export default function Home() {
     }
   };
 
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setMessage("Transcript copied to clipboard.");
+      setTimeout(() => setMessage(""), 2000);
+    });
+  };
+
   return (
     <div id="container">
       <main>
@@ -66,11 +73,20 @@ export default function Home() {
           <div className="video-header">
             <span>Name</span>
             <span>Status</span>
+            <span>Actions</span>
           </div>
           {entries.map((video, index) => (
             <div className="video-row" key={index}>
               <span>{video.name}</span>
               <span>{video.status}</span>
+              {video.transcription && (
+                <button
+                  className="copy-button"
+                  onClick={() => copyToClipboard(video.transcription)}
+                >
+                  Copy Transcript
+                </button>
+              )}
             </div>
           ))}
         </div>
