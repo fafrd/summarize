@@ -49,7 +49,6 @@ export default function Home() {
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text).then(() => {
       setMessage("Transcript copied to clipboard.");
-      setTimeout(() => setMessage(""), 2500);
     });
   };
 
