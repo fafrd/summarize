@@ -21,7 +21,6 @@ def process_entries():
 
             entry.status = "downloading"
             entry.save()
-
             audio_path = download_audio(entry)
             if not audio_path:
                 log(f"Download failed for {entry.url}")
@@ -31,12 +30,10 @@ def process_entries():
 
             entry.status = "converting"
             entry.save()
-
             audio_path = convert_to_wav(entry)
 
             entry.status = "transcribing"
             entry.save()
-
             transcription = transcribe_audio(audio_path)
             if not transcription:
                 log(f"Transcription failed for {audio_path}")

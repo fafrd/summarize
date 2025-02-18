@@ -7,7 +7,7 @@ from daemon import process_entries  # Import daemon function
 
 def run_api():
     """Runs the Flask API."""
-    app.run(port=3669, debug=True, use_reloader=False)
+    app.run(port=3669, debug=False, use_reloader=False)
 
 def run_daemon():
     """Runs the processing daemon."""
