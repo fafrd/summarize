@@ -7,8 +7,6 @@ summarize.py will download a youtube video, transcribe it using whisper.cpp, the
 First set up the backend:
 
     cd api
-    uv sync
-    source .venv/bin/activate
 
     # Install whisper.cpp to this directory
     git clone https://github.com/ggerganov/whisper.cpp.git
@@ -26,6 +24,9 @@ First set up the backend:
     gcloud auth application-default login
 
     # Now start the app
+    cd ..
+    uv sync
+    source .venv/bin/activate
     uv run python app.py
 
 Then set up the frontend:
