@@ -1,5 +1,15 @@
-from datetime import datetime, timezone
+"""Logger module for the API."""
 
-def log(message):
-    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%Sz")
-    print(f"[{timestamp}] {message}")
+import structlog
+
+logger = structlog.get_logger()
+
+
+def log(message: str) -> None:
+    """Log a message with a timestamp.
+
+    Args:
+        message (str): Message to log.
+
+    """
+    logger.info(message)

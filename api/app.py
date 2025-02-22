@@ -1,18 +1,24 @@
+"""Main entry point for the API and daemon."""
+
+import sys
 import threading
 import time
-import sys
+
+from daemon import process_entries  # Import daemon function
 from logger import log
 from server import app  # Import Flask app from server.py
-from daemon import process_entries  # Import daemon function
 
-def run_api():
-    """Runs the Flask API."""
+
+def run_api() -> None:
+    """Run the Flask API."""
     app.run(port=3669, debug=False, use_reloader=False)
 
-def run_daemon():
-    """Runs the processing daemon."""
+
+def run_daemon() -> None:
+    """Run the processing daemon."""
     log("Daemon started, watching for new videos...")
     process_entries()
+
 
 if __name__ == "__main__":
     api_thread = threading.Thread(target=run_api, daemon=True)

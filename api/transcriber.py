@@ -1,48 +1,71 @@
-import os
+"""Transcribe audio files using whisper.cpp."""
+
 import re
 import subprocess
+
 from logger import log
+from pathlib import Path
 
 # Base directory where whisper.cpp is located
-BASE_DIR = os.path.abspath("whisper.cpp")
-WHISPER_PATH = os.path.join(BASE_DIR, "build/bin/whisper-cli")
-WHISPER_MODEL_PATH = os.path.join(BASE_DIR, "models/ggml-large-v3-turbo.bin")
+BASE_DIR = Path("whisper.cpp").resolve()
+WHISPER_PATH = Path(BASE_DIR / "build/bin/whisper-cli")
+WHISPER_MODEL_PATH = Path(BASE_DIR / "models/ggml-large-v3-turbo.bin")
 
-def transcribe_audio(audio_path):
-    """Runs whisper.cpp to generate a transcription."""
-    if not os.path.exists(audio_path):
+
+def transcribe_audio(audio_path: str) -> str | None:
+    """Run whisper.cpp to generate a transcription.
+
+    Args:
+        audio_path (str): Path to the audio file.
+
+    Returns:
+        str: Transcription of the audio.
+
+    """
+    if not Path.exists(audio_path):
         log(f"Audio file not found: {audio_path}")
         return None
 
-    transcript_path = f"{audio_path}.txt"
+    transcript_path = Path(f"{audio_path}.txt")
 
     # Avoid re-transcribing if transcript already exists
-    if os.path.exists(transcript_path) and os.path.getsize(transcript_path) > 0:
+    if transcript_path.exists() and transcript_path.stat().st_size > 0:
         log(f"Using existing transcript: {transcript_path}")
-        with open(transcript_path, "r") as f:
+        with Path.open(transcript_path) as f:
             return f.read()
-    
+
     log("Transcribing audio...")
     transcription_cmd = [
         WHISPER_PATH,
-        "-m", WHISPER_MODEL_PATH,
-        "-f", audio_path,
-        "--entropy-thold", "2.8",
-        "--beam-size", "5",
-        "--max-context", "64",
-        "-otxt"
+        "-m",
+        WHISPER_MODEL_PATH,
+        "-f",
+        audio_path,
+        "--entropy-thold",
+        "2.8",
+        "--beam-size",
+        "5",
+        "--max-context",
+        "64",
+        "-otxt",
     ]
 
     try:
-        with open(transcript_path, "w") as f:
-            result = subprocess.run(transcription_cmd, stdout=f, stderr=subprocess.PIPE, text=True)
-            
+        with Path.open(transcript_path, "w") as f:
+            result = subprocess.run(
+                transcription_cmd,
+                stdout=f,
+                stderr=subprocess.PIPE,
+                text=True,
+                check=False,
+            )
+
         if result.returncode != 0:
             log(f"Whisper command failed: {result.stderr}")
             return None
-        
+
         log(f"Transcription completed: {transcript_path}")
-        with open(transcript_path, "r") as f:
+        with Path.open(transcript_path) as f:
             return f.read()
     except Exception as e:
         log(f"Error during transcription: {e}")
@@ -50,7 +73,15 @@ def transcribe_audio(audio_path):
 
 
 def clean_transcript(transcript: str) -> str:
-    """Cleans up the transcript by removing timestamps, duplicate lines, and null bytes."""
+    """Remove timestamps, duplicate lines, and null bytes from a transcript.
+
+    Args:
+        transcript (str): Transcript to clean.
+
+    Returns:
+        str: Cleaned transcript.
+
+    """
     cleaned_lines = []
     previous_line = None
 

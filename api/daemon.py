@@ -1,14 +1,23 @@
-import time
-from model import Entry
-from downloader import download_audio, fetch_video_title, convert_to_wav
-from transcriber import transcribe_audio, clean_transcript
-from logger import log
+"""Daemon to process entries in the database."""
 
-def process_entries():
-    """Main processing loop."""
+import time
+
+from downloader import convert_to_wav, download_audio, fetch_video_title
+from logger import log
+from model import Entry
+from transcriber import clean_transcript, transcribe_audio
+
+
+def process_entries() -> None:
+    """Process entries in the database."""
     while True:
-        entry = Entry.select().where(Entry.status == "not_started").order_by(Entry.insertion_date.asc()).first()
-        
+        entry = (
+            Entry.select()
+            .where(Entry.status == "not_started")
+            .order_by(Entry.insertion_date.asc())
+            .first()
+        )
+
         if entry:
             try:
                 log(f"Processing: {entry.url}")
@@ -56,6 +65,7 @@ def process_entries():
                 entry.save()
 
         time.sleep(5)  # Polling interval
+
 
 if __name__ == "__main__":
     log("Daemon started, watching for new videos...")
