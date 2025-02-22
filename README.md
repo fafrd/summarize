@@ -10,11 +10,18 @@ First set up the backend:
     uv sync
     source .venv/bin/activate
 
+    # Install whisper.cpp to this directory
     git clone https://github.com/ggerganov/whisper.cpp.git
     cd whisper.cpp
     bash ./models/download-ggml-model.sh large-v3-turbo
     cmake -B build
     cmake --build build --config Release
+
+    # Install the Google Cloud CLI
+    curl https://sdk.cloud.google.com | bash
+    exec -l $SHELL
+    gcloud init
+    gcloud auth application-default login
 
     cd ..
     uv run python app.py
