@@ -17,13 +17,15 @@ First set up the backend:
     cmake -B build
     cmake --build build --config Release
 
+    cd ..
+
     # Install the Google Cloud CLI
     curl https://sdk.cloud.google.com | bash
     exec -l $SHELL
     gcloud init
     gcloud auth application-default login
 
-    cd ..
+    # Now start the app
     uv run python app.py
 
 Then set up the frontend:
