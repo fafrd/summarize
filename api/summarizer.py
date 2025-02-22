@@ -1,3 +1,5 @@
+"""Generates a summary of a Youtube video transcript using an LLM."""
+
 import vertexai
 from vertexai.generative_models import GenerativeModel, GenerationConfig
 
@@ -9,7 +11,7 @@ generation_config = GenerationConfig(
     max_output_tokens=8192,
 )
 
-def summarize_transcript(transcript):
+def summarize_transcript(transcript: str) -> str:
     """Generates a summary of the transcript using an LLM."""
 
     prompt = f"Please summarize this Youtube video. Focus on the main takeaways, summarizing them. When participants take specific positions, mention it. Look for anything controversial or out of the ordinary.\n\n{transcript}\n"
