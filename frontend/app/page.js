@@ -56,7 +56,7 @@ export default function Home() {
   return (
     <div id="container">
       <main>
-        <h1>Youtube Transcriber</h1>
+        <h1>Youtube Summarizer</h1>
         <form onSubmit={handleSubmit}>
           <input
             type="url"

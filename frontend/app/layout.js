@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Youtube Transcriber",
+  title: "Youtube Summarizer",
   description: "",
 };
 
