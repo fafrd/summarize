@@ -7,7 +7,8 @@ summarize.py will download a youtube video, transcribe it using whisper.cpp, the
 First set up the backend:
 
     cd api
-    poetry install
+    uv sync
+    source .venv/bin/activate
 
     git clone https://github.com/ggerganov/whisper.cpp.git
     cd whisper.cpp
@@ -16,7 +17,7 @@ First set up the backend:
     cmake --build build --config Release
 
     cd ..
-    poetry run python app.py
+    uv run python app.py
 
 Then set up the frontend:
 
