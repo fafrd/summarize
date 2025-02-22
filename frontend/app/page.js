@@ -11,7 +11,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchEntries();
-    const interval = setInterval(fetchEntries, 10_000);
+    const interval = setInterval(fetchEntries, 1_000);
     return () => clearInterval(interval);
   }, []);
 
@@ -20,6 +20,7 @@ export default function Home() {
     if (response.ok) {
       const data = await response.json();
       setEntries(data);
+      console.log(data);
     }
   };
 
@@ -48,7 +49,7 @@ export default function Home() {
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text).then(() => {
-      setMessage("Transcript copied to clipboard.");
+      setMessage("Copied to clipboard.");
     });
   };
 
@@ -82,14 +83,18 @@ export default function Home() {
                 </a>
               </span>
               <span>{video.status}</span>
-              {video.transcription && (
-                <button
-                  className="copy-button"
-                  onClick={() => copyToClipboard(video.transcription)}
-                >
-                  Copy Transcript
-                </button>
-              )}
+              <div className="button-container">
+                {video.transcription && (
+                  <button onClick={() => copyToClipboard(video.transcription)}>
+                    Copy Transcript
+                  </button>
+                )}
+                {video.summary && (
+                  <button onClick={() => copyToClipboard(video.summary)}>
+                    Copy Summary
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>

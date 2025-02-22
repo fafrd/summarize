@@ -33,6 +33,7 @@ class Entry(BaseModel):
     status = CharField()
     url = CharField(unique=True)
     transcription = TextField(null=True)
+    summary = TextField(null=True)
     insertion_date = DateTimeField(null=False)
 
 

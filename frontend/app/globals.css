@@ -103,7 +103,13 @@ form button {
   font-style: italic;
 }
 
-.copy-button {
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+button {
   padding: 5px 10px;
   height: fit-content;
   background-color: #333;
@@ -114,8 +120,12 @@ form button {
   font-size: 14px;
 }
 
-.copy-button:hover {
+button:hover {
   background-color: #222;
+}
+
+button:active {
+  background-color: #111;
 }
 
 a {

@@ -1,10 +1,10 @@
 """Daemon to process entries in the database."""
-
 import time
 
 from downloader import convert_to_wav, download_audio, fetch_video_title
 from logger import log
 from model import Entry
+from summarizer import summarize_transcript
 from transcriber import clean_transcript, transcribe_audio
 
 
@@ -53,8 +53,15 @@ def process_entries() -> None:
 
                 log("Cleaning transcript...")
                 transcription = clean_transcript(transcription)
-
                 entry.transcription = transcription
+                entry.save()
+
+                entry.status = "summarizing"
+                entry.save()
+                log("Generating summary...")
+                summary = summarize_transcript(transcription)
+
+                entry.summary = summary
                 entry.status = "done"
                 entry.save()
 

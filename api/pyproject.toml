@@ -13,6 +13,7 @@ dependencies = [
     "flask-cors (>=5.0.0,<6.0.0)",
     "yt-dlp (>=2025.1.26,<2026.0.0)",
     "structlog>=25.1.0",
+    "vertexai (>=1.71.1,<2.0.0)",
 ]
 
 [tool.uv]
