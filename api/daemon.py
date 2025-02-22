@@ -34,7 +34,7 @@ def process_entries() -> None:
                 audio_path = download_audio(entry)
                 if not audio_path:
                     log(f"Download failed for {entry.url}")
-                    entry.status = "not_started"
+                    entry.status = "error"
                     entry.save()
                     continue
 
@@ -47,7 +47,7 @@ def process_entries() -> None:
                 transcription = transcribe_audio(audio_path)
                 if not transcription:
                     log(f"Transcription failed for {audio_path}")
-                    entry.status = "not_started"
+                    entry.status = "error"
                     entry.save()
                     continue
 
