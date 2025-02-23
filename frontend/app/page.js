@@ -6,6 +6,7 @@ export default function Home() {
   const [url, setUrl] = useState("");
   const [message, setMessage] = useState("");
   const [entries, setEntries] = useState([]);
+  const [selected, setSelected] = useState(null);
 
   const SERVER = "http://127.0.0.1:3669";
 
@@ -20,7 +21,6 @@ export default function Home() {
     if (response.ok) {
       const data = await response.json();
       setEntries(data);
-      console.log(data);
     }
   };
 
@@ -47,7 +47,9 @@ export default function Home() {
     }
   };
 
-  const copyToClipboard = (text) => {
+  const selectVideo = (video, text) => {
+    setSelected({ video: <a href={video.url}>{video.name}</a>, text: text });
+
     navigator.clipboard.writeText(text).then(() => {
       setMessage("Copied to clipboard.");
     });
@@ -85,12 +87,14 @@ export default function Home() {
               <span>{video.status}</span>
               <div className="button-container">
                 {video.transcription && (
-                  <button onClick={() => copyToClipboard(video.transcription)}>
+                  <button
+                    onClick={() => selectVideo(video, video.transcription)}
+                  >
                     Copy Transcript
                   </button>
                 )}
                 {video.summary && (
-                  <button onClick={() => copyToClipboard(video.summary)}>
+                  <button onClick={() => selectVideo(video, video.summary)}>
                     Copy Summary
                   </button>
                 )}
@@ -98,6 +102,15 @@ export default function Home() {
             </div>
           ))}
         </div>
+      </main>
+
+      <main>
+        {selected && (
+          <div className="selected-text">
+            <h2>{selected.video}</h2>
+            <p>{selected.text}</p>
+          </div>
+        )}
       </main>
     </div>
   );

@@ -4,14 +4,14 @@ import sys
 import threading
 import time
 
-from daemon import process_entries  # Import daemon function
+from daemon import process_entries
 from logger import log
-from server import app  # Import Flask app from server.py
+from server import server
 
 
 def run_api() -> None:
     """Run the Flask API."""
-    app.run(port=3669, debug=False, use_reloader=False)
+    server.run(port=3669, debug=False, use_reloader=False)
 
 
 def run_daemon() -> None:
