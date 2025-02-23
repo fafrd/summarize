@@ -11,7 +11,7 @@ from server import server
 
 def run_api() -> None:
     """Run the Flask API."""
-    server.run(port=3669, debug=False, use_reloader=False)
+    server.run(host="0.0.0.0", port=3669, debug=False, use_reloader=False)
 
 
 def run_daemon() -> None:
