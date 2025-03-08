@@ -38,3 +38,5 @@ Then set up the frontend:
     npm run build && npm run start
 
 edit frontend/.env.local if you're running the frontend on a different server from the backend.
+
+You might also want to edit the prompt in `api/summarizer.py`.
