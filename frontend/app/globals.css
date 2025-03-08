@@ -175,3 +175,11 @@ a {
   text-decoration: underline;
   text-underline-offset: 0.2em;
 }
+
+p {
+  margin: 5px 0px;
+}
+
+ul {
+  padding-left: 2em;
+}
