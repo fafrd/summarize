@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
 
 export default function Home() {
   const [url, setUrl] = useState("");
@@ -108,7 +109,8 @@ export default function Home() {
         {selected && (
           <div className="selected-text">
             <h2>{selected.video}</h2>
-            <p>{selected.text}</p>
+            {/* Replace the paragraph with ReactMarkdown */}
+            <ReactMarkdown>{selected.text}</ReactMarkdown>
           </div>
         )}
       </main>
