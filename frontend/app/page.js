@@ -8,7 +8,7 @@ export default function Home() {
   const [entries, setEntries] = useState([]);
   const [selected, setSelected] = useState(null);
 
-  const SERVER = "http://127.0.0.1:3669";
+  const SERVER = process.env.NEXT_PUBLIC_SERVER_URL;
 
   useEffect(() => {
     fetchEntries();

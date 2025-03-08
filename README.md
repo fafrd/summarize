@@ -36,3 +36,5 @@ Then set up the frontend:
     npm run dev
     # or
     npm run build && npm run start
+
+edit frontend/.env.local if you're running the frontend on a different server from the backend.
