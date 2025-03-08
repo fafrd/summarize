@@ -42,18 +42,37 @@ a {
 }
 
 #container {
-  max-width: 900px;
   margin: auto;
+  padding: 20px 20px;
   font-family: "Geist Mono", "Geist Mono Fallback", monospace;
 }
 
-main {
-  padding: 40px 20px;
+header {
+  max-width: 900px;
 }
 
-@media (min-width: 768px) {
+main {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+section {
+  width: 50%;
+  margin: 0 auto;
+}
+
+@media (min-width: 1100px) {
+  #container {
+    padding: 20px 80px;
+  }
+
+  section {
+    min-width: initial;
+  }
+
   main {
-    padding: 80px 120px;
+    gap: 60px;
   }
 }
 
@@ -81,7 +100,7 @@ form button {
 
 .video-header {
   display: grid;
-  grid-template-columns: 3fr 1fr 1fr;
+  grid-template-columns: 7fr 2fr;
   font-weight: bold;
   border-bottom: 1px solid #ccc;
   padding-bottom: 5px;
@@ -90,12 +109,29 @@ form button {
 
 .video-row {
   display: grid;
-  grid-template-columns: 3fr 1fr 1fr;
-  padding: 5px 0;
+  grid-template-columns: 7fr 2fr;
   border-bottom: 1px solid #ccc;
   gap: 10px;
-  padding: 10px 0;
+  padding: 10px 2px;
   align-items: center;
+  user-select: none;
+}
+
+.video-row:hover {
+  background-color: var(--foreground);
+  color: var(--background);
+  cursor: pointer;
+}
+
+.video-row.video-row-disabled:hover {
+  background-color: var(--background);
+  color: var(--foreground)
+}
+
+.video-name {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
 }
 
 #message {
@@ -103,11 +139,14 @@ form button {
   font-style: italic;
 }
 
-.button-container {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+article {
+  margin-bottom: 40px;
 }
+
+article h2 {
+  margin-bottom: 10px;
+}
+
 
 button {
   padding: 5px 10px;
@@ -118,6 +157,10 @@ button {
   cursor: pointer;
   border-radius: 4px;
   font-size: 14px;
+}
+
+button.copy-all {
+  margin-bottom: 10px;
 }
 
 button:hover {

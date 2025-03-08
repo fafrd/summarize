@@ -7,7 +7,8 @@ export default function Home() {
   const [url, setUrl] = useState("");
   const [message, setMessage] = useState("");
   const [entries, setEntries] = useState([]);
-  const [selected, setSelected] = useState(null);
+  const [selectedVideos, setSelectedVideos] = useState({});
+  const [lastSelectedIndex, setLastSelectedIndex] = useState(null);
 
   const SERVER = process.env.NEXT_PUBLIC_SERVER_URL;
 
@@ -48,17 +49,63 @@ export default function Home() {
     }
   };
 
-  const selectVideo = (video, text) => {
-    setSelected({ video: <a href={video.url}>{video.name}</a>, text: text });
-
-    navigator.clipboard.writeText(text).then(() => {
-      setMessage("Copied to clipboard.");
-    });
+  const toggleVideoSelection = (url) => {
+    setSelectedVideos((prev) => ({
+      ...prev,
+      [url]: !prev[url],
+    }));
   };
+
+  const handleRowClick = (index, url, event) => {
+    if (!entries[index].summary) return;
+
+    if (event.shiftKey && lastSelectedIndex !== null) {
+      // Determine range (start and end indices)
+      const start = Math.min(lastSelectedIndex, index);
+      const end = Math.max(lastSelectedIndex, index);
+
+      // Create new selection state
+      const newSelections = { ...selectedVideos };
+
+      // Set all items in range to true (selected)
+      for (let i = start; i <= end; i++) {
+        if (entries[i].summary) {
+          newSelections[entries[i].url] = true;
+        }
+      }
+
+      setSelectedVideos(newSelections);
+    } else {
+      // Normal toggle for single item
+      toggleVideoSelection(url);
+      setLastSelectedIndex(index);
+    }
+  };
+
+  const copySelectedSummaries = () => {
+    const selectedSummaries = entries
+      .filter((video) => selectedVideos[video.url] && video.summary)
+      .map((video) => {
+        return `## ${video.name}\n\n${video.summary}\n\n---\n\n`;
+      })
+      .join("");
+
+    if (selectedSummaries) {
+      navigator.clipboard.writeText(selectedSummaries).then(() => {
+        setMessage("All selected summaries copied to clipboard.");
+      });
+    } else {
+      setMessage("No summaries selected to copy.");
+    }
+  };
+
+  const selectedCount = entries.filter(
+    (video) => selectedVideos[video.url] && video.summary
+  ).length;
 
   return (
     <div id="container">
-      <main>
+      <header>
         <h1>Youtube Summarizer</h1>
         <form onSubmit={handleSubmit}>
           <input
@@ -68,51 +115,74 @@ export default function Home() {
             placeholder="Enter YouTube URL"
             required
           />
-          <button type="submit">Go</button>
+          <button type="submit">Submit</button>
         </form>
         {message && <p id="message">{message}</p>}
-
-        <div className="video-list">
-          <div className="video-header">
-            <span>Name</span>
-            <span>Status</span>
-            <span></span>
-          </div>
-          {entries.map((video, index) => (
-            <div className="video-row" key={index}>
-              <span>
-                <a href={video.url} target="_blank">
-                  {video.name}
-                </a>
-              </span>
-              <span>{video.status}</span>
-              <div className="button-container">
-                {video.transcription && (
-                  <button
-                    onClick={() => selectVideo(video, video.transcription)}
-                  >
-                    Copy Transcript
-                  </button>
-                )}
-                {video.summary && (
-                  <button onClick={() => selectVideo(video, video.summary)}>
-                    Copy Summary
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </main>
+      </header>
 
       <main>
-        {selected && (
-          <div className="selected-text">
-            <h2>{selected.video}</h2>
-            {/* Replace the paragraph with ReactMarkdown */}
-            <ReactMarkdown>{selected.text}</ReactMarkdown>
+        <section className="video-section">
+          <div className="video-list">
+            <div className="video-header">
+              <span>Name</span>
+              <span>Status</span>
+            </div>
+            {entries.map((video, index) => (
+              <div
+                className={`video-row ${
+                  !video.summary ? "video-row-disabled" : ""
+                }`}
+                key={index}
+                onClick={(e) => handleRowClick(index, video.url, e)}
+              >
+                <span className="video-name">
+                  <input
+                    className="checkbox"
+                    type="checkbox"
+                    checked={selectedVideos[video.url] || false}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      toggleVideoSelection(video.url);
+                      setLastSelectedIndex(index);
+                    }}
+                    disabled={!video.summary}
+                  />
+                  {video.name}
+                </span>
+                <span>{video.status}</span>
+              </div>
+            ))}
           </div>
-        )}
+        </section>
+
+        <section className="content-section">
+          {selectedCount > 0 && (
+            <button className="copy-all" onClick={copySelectedSummaries}>
+              Copy {selectedCount} Selected Summaries
+            </button>
+          )}
+
+          <div>
+            {selectedCount > 0 ? (
+              entries
+                .filter((video) => selectedVideos[video.url] && video.summary)
+                .map((video, index) => (
+                  <article key={index}>
+                    <h2>
+                      <a href={video.url} target="_blank">
+                        {video.name}
+                      </a>
+                    </h2>
+                    <ReactMarkdown>{video.summary}</ReactMarkdown>
+                  </article>
+                ))
+            ) : (
+              <p className="placeholder-text">
+                Select videos to view summaries.
+              </p>
+            )}
+          </div>
+        </section>
       </main>
     </div>
   );
