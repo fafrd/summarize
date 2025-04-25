@@ -33,10 +33,6 @@ Then set up the frontend:
 
     cd ../../frontend
     npm i
-    npm run dev
-    # or
-    npm run build && npm run start
+    NEXT_PUBLIC_SERVER_URL=localhost:3669 npm run dev
 
-edit frontend/.env.local if you're running the frontend on a different server from the backend.
-
-You might also want to edit the prompt in `api/summarizer.py`.
+You can the edit the prompt in `api/summarizer.py`.
