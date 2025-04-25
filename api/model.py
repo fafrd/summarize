@@ -18,11 +18,7 @@ db = SqliteDatabase(DB_PATH)
 
 
 class BaseModel(Model):
-    """Base model for other models to inherit from."""
-
     class Meta:
-        """Meta class for the base model."""
-
         database = db
 
 
@@ -39,7 +35,6 @@ class Entry(BaseModel):
 
 # Ensure database exists
 def initialize_db() -> None:
-    """Initialize the database."""
     if not Path.exists(DB_PATH):
         log("Database does not exist, initializing...")
         db.connect()

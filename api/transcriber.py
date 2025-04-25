@@ -73,15 +73,6 @@ def transcribe_audio(audio_path: str) -> str | None:
 
 
 def clean_transcript(transcript: str) -> str:
-    """Remove timestamps, duplicate lines, and null bytes from a transcript.
-
-    Args:
-        transcript (str): Transcript to clean.
-
-    Returns:
-        str: Cleaned transcript.
-
-    """
     cleaned_lines = []
     previous_line = None
 

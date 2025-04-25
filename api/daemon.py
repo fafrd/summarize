@@ -9,7 +9,6 @@ from transcriber import clean_transcript, transcribe_audio
 
 
 def process_entries() -> None:
-    """Process entries in the database."""
     while True:
         entry = (
             Entry.select()
