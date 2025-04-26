@@ -6,7 +6,7 @@ from vertexai.generative_models import GenerativeModel, GenerationConfig
 vertexai.init(project='elegant-gearing-417520', location='us-central1')
 
 #gemini_model = GenerativeModel("gemini-2.0-flash-thinking-exp-01-21")
-gemini_model = GenerativeModel("gemini-2.5-flash-preview")
+gemini_model = GenerativeModel("gemini-2.5-flash-preview-04-17")
 generation_config = GenerationConfig(
     temperature=0.7,
     max_output_tokens=16384,
