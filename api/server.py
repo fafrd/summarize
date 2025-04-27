@@ -26,6 +26,11 @@ def get_entries() -> Response:
 
     """
     entries = Entry.select().order_by(Entry.insertion_date.desc()).dicts()
+
+    for e in entries:
+        # return everything but the transcription
+        del e['transcription']
+
     return jsonify(list(entries))
 
 
