@@ -32,6 +32,6 @@ In another terminal, start the frontend in `frontend/`:
 
     cd frontend
     npm i
-    NEXT_PUBLIC_SERVER_URL=localhost:3669 npm run dev
+    NEXT_PUBLIC_SERVER_URL=http://localhost:3669 npm run dev
 
 You can the edit the prompt in `api/summarizer.py`.
