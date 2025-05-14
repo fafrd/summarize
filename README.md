@@ -2,9 +2,15 @@
 
 summarize.py will download a youtube video, transcribe it using whisper.cpp, then summarize it using AI.
 
-## Developing
+## Setup
 
-First set up the backend:
+First build whisper.cpp and authenticate with Google Cloud:
+
+    # Install the Google Cloud CLI
+    curl https://sdk.cloud.google.com | bash
+    exec -l $SHELL
+    gcloud init
+    gcloud auth application-default login
 
     cd api
 
@@ -15,23 +21,16 @@ First set up the backend:
     cmake -B build
     cmake --build build --config Release
 
-    cd ..
+Start the backend in `api/`:
 
-    # Install the Google Cloud CLI
-    curl https://sdk.cloud.google.com | bash
-    exec -l $SHELL
-    gcloud init
-    gcloud auth application-default login
-
-    # Now start the app
-    cd ..
+    cd api
     uv sync
     source .venv/bin/activate
     uv run python app.py
 
-Then set up the frontend:
+In another terminal, start the frontend in `frontend/`:
 
-    cd ../../frontend
+    cd frontend
     npm i
     NEXT_PUBLIC_SERVER_URL=localhost:3669 npm run dev
 
