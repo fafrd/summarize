@@ -1,5 +1,6 @@
 """Main entry point for the API and daemon."""
 
+import logging
 import sys
 import threading
 import time
@@ -10,6 +11,7 @@ from server import server
 
 
 def run_api() -> None:
+    logging.getLogger('werkzeug').disabled = True
     server.run(host="0.0.0.0", port=3669, debug=False, use_reloader=False)
 
 

@@ -30,6 +30,9 @@ def get_entries() -> Response:
     for e in entries:
         # return everything but the transcription
         del e['transcription']
+        # format insertion_date as ISO string
+        if e['insertion_date'] and hasattr(e['insertion_date'], 'isoformat'):
+            e['insertion_date'] = e['insertion_date'].isoformat()
 
     return jsonify(list(entries))
 
@@ -75,7 +78,13 @@ def add_entry() -> (
                     insertion_date=datetime.now(timezone.utc),
                 )
             except IntegrityError:
-                log.warn(f"A video with URL {url} already exists.")
+                existing_entry = Entry.get(Entry.url == url)
+                if existing_entry.status == "error":
+                    log.info(f"Resetting error video {url} to not_started")
+                    existing_entry.status = "not_started"
+                    existing_entry.save()
+                else:
+                    log.warn(f"A video with URL {url} already exists.")
         return jsonify({"message": "Playlist added successfully."}), 201
     else:
         log.info("Adding video")
@@ -90,8 +99,15 @@ def add_entry() -> (
             )
             return jsonify({"message": "Video added successfully."}), 201
         except IntegrityError:
-            log.warn(f"A video with URL {data["url"]} already exists.")
-            return (
-                jsonify({"error": "A video with this URL already exists."}),
-                409,
-            )  # HTTP 409 Conflict
+            existing_entry = Entry.get(Entry.url == data["url"])
+            if existing_entry.status == "error":
+                log.info(f"Resetting error video {data['url']} to not_started")
+                existing_entry.status = "not_started"
+                existing_entry.save()
+                return jsonify({"message": "Video reset and will be retried."}), 200
+            else:
+                log.warn(f"A video with URL {data['url']} already exists.")
+                return (
+                    jsonify({"error": "A video with this URL already exists."}),
+                    409,
+                )  # HTTP 409 Conflict

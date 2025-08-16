@@ -93,6 +93,14 @@ form button {
   padding: 5px 20px;
 }
 
+.video-section {
+  overflow-y: scroll;
+  max-height: 80vh;
+  border: 1px solid white;
+  padding: 8px;
+  margin: 0px 16px 0px 0px;
+}
+
 .video-list {
   display: grid;
   width: 100%;
@@ -100,7 +108,7 @@ form button {
 
 .video-header {
   display: grid;
-  grid-template-columns: 7fr 2fr;
+  grid-template-columns: 7fr 2fr 2fr;
   font-weight: bold;
   border-bottom: 1px solid #ccc;
   padding-bottom: 5px;
@@ -109,7 +117,7 @@ form button {
 
 .video-row {
   display: grid;
-  grid-template-columns: 7fr 2fr;
+  grid-template-columns: 7fr 2fr 2fr;
   border-bottom: 1px solid #ccc;
   gap: 10px;
   padding: 10px 2px;

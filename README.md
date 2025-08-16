@@ -25,7 +25,6 @@ Start the backend in `api/`:
 
     cd api
     uv sync
-    source .venv/bin/activate
     uv run python app.py
 
 In another terminal, start the frontend in `frontend/`:
