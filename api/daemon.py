@@ -1,8 +1,9 @@
 """Daemon to process entries in the database."""
 import time
 from datetime import datetime, timezone
+from pathlib import Path
 
-from downloader import convert_to_wav, download_audio, fetch_video_title
+from downloader import convert_to_wav, download_audio, fetch_video_title, get_audio_filepath
 from logger import log
 from model import Entry
 from summarizer import summarize_transcript
@@ -15,10 +16,16 @@ def resume_interrupted_entries() -> None:
 
     for entry in interrupted_entries:
         log(f"Resuming interrupted entry: {entry.url} (was {entry.status})")
-        entry.insertion_date = datetime.now(timezone.utc)
         
-        if entry.transcription:
-            entry.status = "summarizing"
+        if entry.status == "transcribing":
+            # Always remove transcription file when resuming from transcribing state
+            # This ensures incomplete transcriptions are regenerated
+            transcript_path = Path("temp") / f"{entry.id}_{entry.name}.wav.txt"
+            if transcript_path.exists():
+                transcript_path.unlink()
+                log(f"Removed incomplete transcription: {transcript_path}")
+            entry.status = "transcribing"
+        
         entry.save()
 
 
@@ -68,6 +75,15 @@ def process_entries() -> None:
 
                 # Transcribe phase
                 if entry.status == "transcribing":
+                    audio_path = convert_to_wav(entry)
+                    
+                    # Remove any existing transcript file to ensure fresh transcription
+                    # This handles cases where transcription was interrupted
+                    transcript_path = Path("temp") / f"{entry.id}_{entry.name}.wav.txt"
+                    if transcript_path.exists():
+                        transcript_path.unlink()
+                        log(f"Removed existing transcript file: {transcript_path}")
+                    
                     transcription = transcribe_audio(audio_path)
                     if not transcription:
                         log(f"Transcription failed for {audio_path}")
