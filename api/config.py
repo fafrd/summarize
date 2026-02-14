@@ -36,9 +36,12 @@ MP3_QUALITY = os.getenv("MP3_QUALITY", "192")
 WHISPER_BASE_DIR = Path(os.getenv("WHISPER_BASE_DIR", "whisper.cpp"))
 WHISPER_BINARY = WHISPER_BASE_DIR / "build/bin/whisper-cli"
 WHISPER_MODEL = WHISPER_BASE_DIR / "models/ggml-large-v3-turbo.bin"
-WHISPER_ENTROPY_THRESHOLD = float(os.getenv("WHISPER_ENTROPY_THRESHOLD", "2.8"))
+WHISPER_THREADS = int(os.getenv("WHISPER_THREADS", "8"))  # Half of available cores for balance
+WHISPER_LANGUAGE = os.getenv("WHISPER_LANGUAGE", "en")  # Avoid auto-detection overhead
+WHISPER_ENTROPY_THRESHOLD = float(os.getenv("WHISPER_ENTROPY_THRESHOLD", "2.4"))  # Default is better for quality
 WHISPER_BEAM_SIZE = int(os.getenv("WHISPER_BEAM_SIZE", "5"))
-WHISPER_MAX_CONTEXT = int(os.getenv("WHISPER_MAX_CONTEXT", "64"))
+WHISPER_MAX_CONTEXT = int(os.getenv("WHISPER_MAX_CONTEXT", "-1"))  # -1 = unlimited for best quality
+WHISPER_SUPPRESS_NON_SPEECH = os.getenv("WHISPER_SUPPRESS_NON_SPEECH", "true").lower() == "true"  # Filter out non-speech tokens
 
 # LLM Configuration
 LLM_API_KEY = os.getenv("OPENROUTER_API_KEY")

@@ -10,8 +10,11 @@ from config import (
     WHISPER_BEAM_SIZE,
     WHISPER_BINARY,
     WHISPER_ENTROPY_THRESHOLD,
+    WHISPER_LANGUAGE,
     WHISPER_MAX_CONTEXT,
     WHISPER_MODEL,
+    WHISPER_SUPPRESS_NON_SPEECH,
+    WHISPER_THREADS,
 )
 
 log = structlog.get_logger()
@@ -46,6 +49,10 @@ def transcribe_audio(audio_path: str) -> str | None:
         str(WHISPER_MODEL),
         "-f",
         str(audio_path),
+        "-t",
+        str(WHISPER_THREADS),
+        "-l",
+        WHISPER_LANGUAGE,
         "--entropy-thold",
         str(WHISPER_ENTROPY_THRESHOLD),
         "--beam-size",
@@ -54,6 +61,10 @@ def transcribe_audio(audio_path: str) -> str | None:
         str(WHISPER_MAX_CONTEXT),
         "-otxt",
     ]
+
+    # Add optional flags
+    if WHISPER_SUPPRESS_NON_SPEECH:
+        transcription_cmd.append("--suppress-nst")
 
     try:
         with Path.open(transcript_path, "w") as f:
