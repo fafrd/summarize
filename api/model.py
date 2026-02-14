@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+import structlog
 from peewee import (
     CharField,
     DateTimeField,
@@ -10,11 +11,12 @@ from peewee import (
     TextField,
 )
 
-from logger import log
+from config import DATABASE_PATH
+
+log = structlog.get_logger()
 
 # Database setup
-DB_PATH = Path("summarize.db")
-db = SqliteDatabase(DB_PATH)
+db = SqliteDatabase(DATABASE_PATH)
 
 
 class BaseModel(Model):
@@ -35,8 +37,8 @@ class Entry(BaseModel):
 
 # Ensure database exists
 def initialize_db() -> None:
-    if not Path.exists(DB_PATH):
-        log("Database does not exist, initializing...")
+    if not Path.exists(DATABASE_PATH):
+        log.info("Database does not exist, initializing...")
         db.connect()
         db.create_tables([Entry])
         db.close()

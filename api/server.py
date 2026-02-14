@@ -1,6 +1,5 @@
 """Contains the Flask API server for the video transcription project."""
 
-from datetime import datetime, timezone
 from typing import Literal
 
 from flask import Flask, Response, jsonify, request
@@ -9,6 +8,7 @@ from peewee import IntegrityError
 import structlog
 import yt_dlp
 
+from helpers import create_or_reset_entry
 from model import Entry
 
 log = structlog.get_logger()
@@ -70,44 +70,22 @@ def add_entry() -> (
         for url in urls:
             log.info(f"Adding video {url} to database")
             try:
-                Entry.create(
-                    name=url,
-                    status="not_started",
-                    url=url,
-                    transcription=None,
-                    insertion_date=datetime.now(timezone.utc),
-                )
+                create_or_reset_entry(url)
             except IntegrityError:
-                existing_entry = Entry.get(Entry.url == url)
-                if existing_entry.status == "error":
-                    log.info(f"Resetting error video {url} to not_started")
-                    existing_entry.status = "not_started"
-                    existing_entry.save()
-                else:
-                    log.warn(f"A video with URL {url} already exists.")
+                log.warning(f"A video with URL {url} already exists.")
         return jsonify({"message": "Playlist added successfully."}), 201
     else:
         log.info("Adding video")
         try:
             log.info(f"Adding video {data['url']} to database")
-            Entry.create(
-                name=data["url"],
-                status="not_started",
-                url=data["url"],
-                transcription=None,
-                insertion_date=datetime.now(timezone.utc),
-            )
-            return jsonify({"message": "Video added successfully."}), 201
-        except IntegrityError:
-            existing_entry = Entry.get(Entry.url == data["url"])
-            if existing_entry.status == "error":
-                log.info(f"Resetting error video {data['url']} to not_started")
-                existing_entry.status = "not_started"
-                existing_entry.save()
-                return jsonify({"message": "Video reset and will be retried."}), 200
+            entry, is_new = create_or_reset_entry(data["url"])
+            if is_new:
+                return jsonify({"message": "Video added successfully."}), 201
             else:
-                log.warn(f"A video with URL {data['url']} already exists.")
-                return (
-                    jsonify({"error": "A video with this URL already exists."}),
-                    409,
-                )  # HTTP 409 Conflict
+                return jsonify({"message": "Video reset and will be retried."}), 200
+        except IntegrityError:
+            log.warning(f"A video with URL {data['url']} already exists.")
+            return (
+                jsonify({"error": "A video with this URL already exists."}),
+                409,
+            )  # HTTP 409 Conflict

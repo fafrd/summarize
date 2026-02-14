@@ -2,3 +2,4 @@
 gpt-summarize/gpt-summarize
 videos/
 whisper.cpp/
+.env

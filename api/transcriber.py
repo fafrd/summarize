@@ -2,14 +2,19 @@
 
 import re
 import subprocess
-
-from logger import log
 from pathlib import Path
 
-# Base directory where whisper.cpp is located
-BASE_DIR = Path("whisper.cpp").resolve()
-WHISPER_PATH = Path(BASE_DIR / "build/bin/whisper-cli")
-WHISPER_MODEL_PATH = Path(BASE_DIR / "models/ggml-large-v3-turbo.bin")
+import structlog
+
+from config import (
+    WHISPER_BEAM_SIZE,
+    WHISPER_BINARY,
+    WHISPER_ENTROPY_THRESHOLD,
+    WHISPER_MAX_CONTEXT,
+    WHISPER_MODEL,
+)
+
+log = structlog.get_logger()
 
 
 def transcribe_audio(audio_path: str) -> str | None:
@@ -23,30 +28,30 @@ def transcribe_audio(audio_path: str) -> str | None:
 
     """
     if not Path.exists(audio_path):
-        log(f"Audio file not found: {audio_path}")
+        log.error(f"Audio file not found: {audio_path}")
         return None
 
     transcript_path = Path(f"{audio_path}.txt")
 
     # Avoid re-transcribing if transcript already exists
     if transcript_path.exists() and transcript_path.stat().st_size > 0:
-        log(f"Using existing transcript: {transcript_path}")
+        log.info(f"Using existing transcript: {transcript_path}")
         with Path.open(transcript_path) as f:
             return f.read()
 
-    log("Transcribing audio...")
+    log.info("Transcribing audio...")
     transcription_cmd = [
-        WHISPER_PATH,
+        str(WHISPER_BINARY),
         "-m",
-        WHISPER_MODEL_PATH,
+        str(WHISPER_MODEL),
         "-f",
-        audio_path,
+        str(audio_path),
         "--entropy-thold",
-        "2.8",
+        str(WHISPER_ENTROPY_THRESHOLD),
         "--beam-size",
-        "5",
+        str(WHISPER_BEAM_SIZE),
         "--max-context",
-        "64",
+        str(WHISPER_MAX_CONTEXT),
         "-otxt",
     ]
 
@@ -61,14 +66,14 @@ def transcribe_audio(audio_path: str) -> str | None:
             )
 
         if result.returncode != 0:
-            log(f"Whisper command failed: {result.stderr}")
+            log.error(f"Whisper command failed: {result.stderr}")
             return None
 
-        log(f"Transcription completed: {transcript_path}")
+        log.info(f"Transcription completed: {transcript_path}")
         with Path.open(transcript_path) as f:
             return f.read()
     except Exception as e:
-        log(f"Error during transcription: {e}")
+        log.exception(f"Error during transcription: {e}")
         return None
 
 

@@ -7,13 +7,11 @@ from pathlib import Path
 import structlog
 import yt_dlp
 
+from config import AUDIO_SAMPLE_RATE, MP3_QUALITY, TEMP_DIR
+from helpers import sanitize_filename
 from model import Entry
 
 log = structlog.get_logger()
-
-# Directory for storing downloaded audio
-AUDIO_DIR = Path("temp")
-AUDIO_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def fetch_video_title(url: str) -> str | None:
@@ -53,13 +51,11 @@ def get_audio_filepath(entry_id: int, name: str) -> Path:
         Path: File path for the downloaded audio.
 
     """
-    sanitized_name = "".join(
-        c for c in name if c.isalnum() or c in " _-"
-    ).strip()  # Basic filename sanitization
-    return AUDIO_DIR / f"{entry_id}_{sanitized_name}.mp3"
+    sanitized_name = sanitize_filename(name)
+    return TEMP_DIR / f"{entry_id}_{sanitized_name}.mp3"
 
 
-def download_audio(entry: Entry) -> str | None:
+def download_audio(entry: Entry) -> Path | None:
     """Download audio using yt-dlp and returns the file path.
 
     Args:
@@ -78,7 +74,7 @@ def download_audio(entry: Entry) -> str | None:
             {
                 "key": "FFmpegExtractAudio",
                 "preferredcodec": "mp3",
-                "preferredquality": "192",
+                "preferredquality": MP3_QUALITY,
             },
         ],
     }
@@ -108,12 +104,11 @@ def download_audio(entry: Entry) -> str | None:
 
     except Exception as e:
         traceback.print_exc()
-
-        (f"Error checking download: {e}")
+        log.exception(f"Error checking download: {e}")
         return None
 
 
-def convert_to_wav(entry: str) -> str | None:
+def convert_to_wav(entry: Entry) -> Path | None:
     """Convert audio using ffmpeg to 16-bit WAV as required by whipser.cpp.
 
     Args:
@@ -121,23 +116,23 @@ def convert_to_wav(entry: str) -> str | None:
 
     """
     input_audio = get_audio_filepath(entry.id, entry.name)
-    output_audio = AUDIO_DIR / f"{entry.id}_{entry.name}.wav"
+    output_audio = TEMP_DIR / f"{entry.id}_{entry.name}.wav"
 
     if not Path.exists(output_audio):
-        log.debug(f"Converting {input_audio} to 16kHz WAV...")
+        log.debug(f"Converting {input_audio} to {AUDIO_SAMPLE_RATE}Hz WAV...")
         try:
             subprocess.run(
                 [
                     "ffmpeg",
                     "-i",
-                    input_audio,
+                    str(input_audio),
                     "-ar",
-                    "16000",
+                    str(AUDIO_SAMPLE_RATE),
                     "-ac",
                     "1",
                     "-c:a",
                     "pcm_s16le",
-                    output_audio,
+                    str(output_audio),
                 ],
                 check=True,
             )

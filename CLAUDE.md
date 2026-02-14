@@ -6,23 +6,58 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 YouTube video summarization application that downloads city council meeting videos, transcribes them using whisper.cpp, and generates AI summaries. Consists of a Python Flask backend with background daemon processing and a Next.js frontend.
 
+## Environment Variables
+
+### Required
+- `OPENROUTER_API_KEY`: API key for OpenRouter LLM service (required for summarization)
+
+### Optional - Backend Configuration
+- `API_PORT`: Port for Flask server (default: `3669`)
+- `API_HOST`: Host for Flask server (default: `0.0.0.0`)
+- `DATABASE_PATH`: Path to SQLite database file (default: `summarize.db`)
+- `TEMP_DIR`: Directory for temporary files (default: `temp`)
+- `POLLING_INTERVAL`: Seconds between daemon polling cycles (default: `5`)
+
+### Optional - Audio Processing
+- `AUDIO_SAMPLE_RATE`: Sample rate for WAV conversion (default: `16000`)
+- `MP3_QUALITY`: Quality setting for MP3 download (default: `192`)
+
+### Optional - Whisper Configuration
+- `WHISPER_BASE_DIR`: Base directory for whisper.cpp (default: `whisper.cpp`)
+- `WHISPER_ENTROPY_THRESHOLD`: Entropy threshold for whisper (default: `2.8`)
+- `WHISPER_BEAM_SIZE`: Beam size for whisper (default: `5`)
+- `WHISPER_MAX_CONTEXT`: Max context for whisper (default: `64`)
+
+### Optional - LLM Configuration
+- `LLM_BASE_URL`: Base URL for LLM API (default: `https://openrouter.ai/api/v1`)
+- `LLM_MODEL`: Model to use for summarization (default: `openai/gpt-4o-mini`)
+- `LLM_TEMPERATURE`: Temperature for LLM generation (default: `0.7`)
+- `LLM_MAX_TOKENS`: Max tokens for LLM response (default: `16384`)
+
+### Optional - Frontend
+- `NEXT_PUBLIC_SERVER_URL`: Backend API URL (default: `http://localhost:3669`)
+- `NEXT_PUBLIC_POLL_INTERVAL`: Milliseconds between frontend polling (default: `1000`)
+
+**Note:** Copy `.env.example` to `.env` and fill in required values before running.
+
 ## Development Commands
 
 ### Backend (api/)
 ```bash
 cd api
-uv sync                    # Install dependencies
-source .venv/bin/activate  # Activate virtual environment  
-uv run python app.py       # Start API server (port 3669) and daemon
+cp ../.env.example ../.env  # Copy and edit with your API key
+uv sync                      # Install dependencies
+source .venv/bin/activate    # Activate virtual environment
+uv run python app.py         # Start API server and daemon
 ```
 
 ### Frontend (frontend/)
 ```bash
 cd frontend
-npm i                                                        # Install dependencies
-NEXT_PUBLIC_SERVER_URL=http://localhost:3669 npm run dev    # Start dev server
-npm run build                                               # Build for production
-npm run lint                                                # Run linter
+npm i                                                              # Install dependencies
+NEXT_PUBLIC_SERVER_URL=http://localhost:3669 npm run dev -- -p 4000    # Start dev server on port 4000
+npm run build                                                      # Build for production
+npm run lint                                                       # Run linter
 ```
 
 ### Whisper.cpp Setup (one-time)
@@ -40,12 +75,14 @@ cmake --build build --config Release
 ### Backend Components
 
 - **app.py**: Main entry point running Flask API server and background daemon in separate threads
+- **config.py**: Centralized configuration management with environment variable validation
+- **helpers.py**: Shared utility functions (entry creation, filename sanitization, path helpers)
 - **server.py**: Flask API with `/entries` endpoint (GET/POST) for video management
 - **daemon.py**: Background processor that polls database for unprocessed videos
 - **model.py**: Peewee ORM model for SQLite database (`entry` table)
 - **downloader.py**: YouTube audio download using yt-dlp, converts to MP3 then WAV
 - **transcriber.py**: Wrapper around whisper.cpp for audio transcription
-- **summarizer.py**: LLM integration for transcript summarization (currently OpenRouter)
+- **summarizer.py**: LLM integration for transcript summarization
 
 ### Processing Pipeline
 
@@ -81,14 +118,12 @@ SQLite table `entry`:
 - Multi-select summaries with bulk copy to clipboard
 - Markdown rendering of summaries
 
-## Configuration
+## Customization
 
-### Environment Variables
-- `OPENROUTER_API_KEY`: Required for LLM summarization
-
-### Customization
 - Edit summarization prompt in `api/summarizer.py`
-- LLM model configured in `summarizer.py` (currently `google/gemini-2.0-flash-exp`)
+- Change LLM model via `LLM_MODEL` environment variable
+- Adjust whisper parameters via environment variables (see Environment Variables section)
+- Modify frontend polling interval via `NEXT_PUBLIC_POLL_INTERVAL`
 
 ## Important Implementation Details
 
