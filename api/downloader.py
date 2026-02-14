@@ -25,7 +25,16 @@ def fetch_video_title(url: str) -> str | None:
 
     """
     try:
-        ydl_opts = {"quiet": True, "noprogress": True, "extract_flat": True}
+        ydl_opts = {
+            "quiet": True,
+            "noprogress": True,
+            "extract_flat": True,
+            "extractor_args": {
+                "youtube": {
+                    "player_client": ["android", "web"],
+                }
+            },
+        }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             if not info:
@@ -70,6 +79,11 @@ def download_audio(entry: Entry) -> Path | None:
         "outtmpl": str(output_path).rsplit(".", 1)[0],
         "quiet": True,
         "noprogress": True,
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["android", "web"],
+            }
+        },
         "postprocessors": [
             {
                 "key": "FFmpegExtractAudio",
