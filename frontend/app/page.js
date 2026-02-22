@@ -7,9 +7,11 @@ import VideoTable from "@/components/VideoTable";
 import SummaryPanel from "@/components/SummaryPanel";
 
 export default function Home() {
-  const { entries, refetch } = useVideos();
+  const { entries, error, refetch } = useVideos();
   const [selectedVideos, setSelectedVideos] = useState({});
   const [lastSelectedIndex, setLastSelectedIndex] = useState(null);
+
+  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || "backend";
 
   const toggleVideoSelection = (url, index) => {
     setSelectedVideos((prev) => ({
@@ -63,6 +65,13 @@ export default function Home() {
         <h1>Youtube Summarizer</h1>
         <VideoForm onVideoAdded={refetch} />
       </header>
+
+      {error && (
+        <div className="error-banner">
+          ⚠️ Unable to reach backend at {serverUrl}
+          <div className="error-details">{error}</div>
+        </div>
+      )}
 
       <main>
         <section className="video-section">
