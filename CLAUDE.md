@@ -35,7 +35,7 @@ YouTube video summarization application that downloads city council meeting vide
 - `LLM_MAX_TOKENS`: Max tokens for LLM response (default: `16384`)
 
 ### Optional - Frontend
-- `NEXT_PUBLIC_SERVER_URL`: Backend API URL (default: `http://localhost:3669`)
+- `NEXT_PUBLIC_BACKEND_PORT`: Backend port number (default: `3669`). Frontend automatically uses current browser hostname with this port.
 - `NEXT_PUBLIC_POLL_INTERVAL`: Milliseconds between frontend polling (default: `1000`)
 
 **Note:** Copy `.env.example` to `.env` and fill in required values before running.
@@ -54,10 +54,10 @@ uv run python app.py         # Start API server and daemon
 ### Frontend (frontend/)
 ```bash
 cd frontend
-npm i                                                              # Install dependencies
-NEXT_PUBLIC_SERVER_URL=http://localhost:3669 npm run dev -- -p 4000    # Start dev server on port 4000
-npm run build                                                      # Build for production
-npm run lint                                                       # Run linter
+npm i                # Install dependencies
+npm run dev -- -p 4000    # Start dev server on port 4000 (automatically connects to backend on same hostname)
+npm run build        # Build for production
+npm run lint         # Run linter
 ```
 
 ### Whisper.cpp Setup (one-time)

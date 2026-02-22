@@ -11,7 +11,10 @@ export default function Home() {
   const [selectedVideos, setSelectedVideos] = useState({});
   const [lastSelectedIndex, setLastSelectedIndex] = useState(null);
 
-  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || "backend";
+  const backendPort = process.env.NEXT_PUBLIC_BACKEND_PORT || '3669';
+  const serverUrl = typeof window !== 'undefined'
+    ? `${window.location.protocol}//${window.location.hostname}:${backendPort}`
+    : `backend:${backendPort}`;
 
   const toggleVideoSelection = (url, index) => {
     setSelectedVideos((prev) => ({

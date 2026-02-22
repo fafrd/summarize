@@ -1,8 +1,18 @@
-const SERVER = process.env.NEXT_PUBLIC_SERVER_URL;
+// Use the backend port from env, default to 3669
+const BACKEND_PORT = process.env.NEXT_PUBLIC_BACKEND_PORT || '3669';
 
-if (!SERVER) {
-  console.warn("NEXT_PUBLIC_SERVER_URL not set, API calls will fail");
-}
+// Dynamically construct the server URL based on current browser location
+// This allows the app to work on localhost, LAN IPs, domains, etc.
+const getServerUrl = () => {
+  if (typeof window !== 'undefined') {
+    // In the browser: use current hostname with backend port
+    return `${window.location.protocol}//${window.location.hostname}:${BACKEND_PORT}`;
+  }
+  // During SSR: fallback to env variable or localhost
+  return process.env.NEXT_PUBLIC_SERVER_URL || `http://localhost:${BACKEND_PORT}`;
+};
+
+const SERVER = getServerUrl();
 
 export async function fetchEntries() {
   const response = await fetch(`${SERVER}/entries`);
